@@ -1,20 +1,40 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import * as React from 'react';
+import {StyleSheet} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AirportsMap from './views/AirportsMap';
+import FlightLists from "./views/FlightLists";
+import {useEffect, useState} from "react";
+import {AirportContext} from "./context";
+import {mapAirports} from "./views/AirportsMap/helpers/mapAirports";
+import FlightDetails from "./views/FlightDetails";
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    const [airports, setAirports] = useState({})
+
+    useEffect(() => {
+        fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json')
+            .then(result => result.json())
+            .then(data => {
+                setAirports(data)
+            })
+    }, [])
+
+    return (
+        <NavigationContainer>
+            <AirportContext.Provider value={airports}>
+                <Stack.Navigator>
+                    <Stack.Screen name="Map" component={AirportsMap} />
+                    <Stack.Screen name="Flights" component={FlightLists} />
+                    <Stack.Screen name="FlightDetails" component={FlightDetails} />
+                </Stack.Navigator>
+            </AirportContext.Provider>
+        </NavigationContainer>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+
 });
